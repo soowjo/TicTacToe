@@ -1,3 +1,7 @@
+const Player = (entry) => {
+    return {entry};
+};
+
 const gameBoard = (() => {
     const rc11 = document.querySelector('#rc11');
     const rc12 = document.querySelector('#rc12');
@@ -9,31 +13,37 @@ const gameBoard = (() => {
     const rc32 = document.querySelector('#rc32');
     const rc33 = document.querySelector('#rc33');
     let arr = [[rc11,rc12,rc13],[rc21,rc22,rc23],[rc31,rc32,rc33]];
-    const player = (name,choice) => {
-        const getName = () => name;
-        const getChoice = () => choice;
-        return {getName,getChoice};
-    };
-    const playerOne = Player('one',[]);
-    const playerTwo = Player('two',[]);
+
+    const playerOne = Player([]);
+    const playerTwo = Player([]);
     const bingo = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]];
     for (let i=0; i<arr.length; i++) {
         for (let j=0; j<arr[i].length; j++) {
             if (arr[i][j] ==='one') {
-                player.one.push(i*3+j+1);
-                player.one.sort();
-                if (bingo.includes(player.one)) {
+                playerOne.entry.push(i*3+j+1);
+                playerOne.entry.sort();
+                if (bingo.includes(playerOne.entry)) {
                     return 'One is winner!';
                 }
             }
             else if (arr[i][j] ==='two') {
-                player.two.push(i*3+j+1);
-                player.two.sort();
-                if (bingo.includes(player.two)) {
+                playerTwo.entry.push(i*3+j+1);
+                playerTwo.entry.sort();
+                if (bingo.includes(playerTwo.entry)) {
                     return "Two is winner!";
                 }
             }
         }
     }
 })();
-displayController
+
+displayController = (() => {
+    const playerOne = Player([]);
+    const playerTwo = Player([]);
+    const cells = document.querySelectorAll('.cells')
+    cells.forEach(i => i.addEventListener('click', clickingCell))
+    function clickingCell
+
+    /* write a while statement to swtich between players */
+
+})();
