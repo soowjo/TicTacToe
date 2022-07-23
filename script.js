@@ -1,7 +1,7 @@
 'use strict'
 
-const Player = (entry) => {
-    return {entry};
+const Player = (array) => {
+    return {array};
 };
 
 const gameBoard = (() => {
@@ -9,42 +9,49 @@ const gameBoard = (() => {
     const playerO = Player([]);
     const playerX = Player([]);
     const bingo = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    let turn = true;
-    let gameActive = true;
     const checkBingo = function () {
-        for (let i=0; i<9; i++)
-            if (playerO.entry.length >= 3) {
-                playerO.sort();
-                if (bingo.includes(playerO.entry)) {
-                    gameActive = false;
-                    return 'O';
+        let count = playerO.array.length+playerX.array.length;
+        let turn = !(count%2);
+        let result;
+        if (turn) {
+            displayController.playerTurn.textContent = "Player 'O' Turn";
+        }
+        else if (!turn) {
+            displayController.playerTurn.textContent = "Player 'X' Turn";
+        }
+        if (playerO.array.length >= 3) {
+            for (let i of bingo) {
+                if (i.every(element => playerO.array.includes(element))) {
+                    result = 'O';
+                }
+            }            
+        }
+        if (playerX.array.length >= 3) {
+            for (let i of bingo) {
+                if (i.every(element => playerX.array.includes(element))) {    
+                    result = 'X';
                 }
             }
-            else if (playerX.entry.length >= 3) {
-                playerX.sort();
-                if (bingo.includes(playerX.entry)) {
-                    gameActive = false;
-                    return 'X';
-                }
-            }
-            else if (i == 8) {
-                return 'draw'
-            }
+        }
+        if (count == 9) {
+            result = 'draw'
+        }
+        return {count, turn, result};
     }
-    
+    return {arr, playerO, playerX, bingo, checkBingo};
     /* for (let i=0; i<arr.length; i++) {
         if (arr[i] ==='one') {
-            playerOne.entry.push(i);
-            playerOne.entry.sort();
-            if (bingo.includes(playerOne.entry)) {
+            playerOne.array.push(i);
+            playerOne.array.sort();
+            if (bingo.includes(playerOne.array)) {
                 gameActive = false;
                 return 'One is winner!';
             }
         }
         else if (arr[i] ==='two') {
-            playerTwo.entry.push(i);
-            playerTwo.entry.sort();
-            if (bingo.includes(playerTwo.entry)) {
+            playerTwo.array.push(i);
+            playerTwo.array.sort();
+            if (bingo.includes(playerTwo.array)) {
                 gameActive = false;
                 return "Two is winner!";
             }
@@ -54,37 +61,43 @@ const gameBoard = (() => {
 
 const displayController = (() => {
     const table = document.querySelector('#table');
-    const footer = document.querySelector('footer')
-    for (let i=0; i<arr.length; i++) {
+    const playerTurn = document.querySelector('#playerTurn');
+    const playerWin = document.querySelector('#playerWin');
+    let gameActive = true;
+    for (let i=0; i<gameBoard.arr.length; i++) {
         const cell = document.createElement('div');
+        cell.classList.add('cell')
         cell['id'] = 'cell'+i;
         cell.addEventListener('click', () => {
-            if (gameBoard.turn) {
+            if (gameBoard.checkBingo().turn && cell.textContent == '' && gameActive) {
                 cell.textContent = 'O';
                 gameBoard.arr[i] = 'O';
-                playerO.push(i);
-                if (gameBoard.checkBingo() == 'O') {
-                    footer.textContent = 'O is winner';
+                gameBoard.playerO.array.push(i);
+                if (gameBoard.checkBingo().result == 'O') {
+                    playerWin.textContent = 'O is winner';
+                    gameActive = false;
                     return;
-                };
-                else if (gameBoard.checkBingo() == 'draw') {
-                    footer.textContent = 'The result is draw';
+                }
+                else if (gameBoard.checkBingo().result == 'draw') {
+                    playerWin.textContent = 'The result is draw';
+                    gameActive = false;
                     return;
-                };
+                }
             }
-            else if (!gameBoard.turn) {
+            else if (!gameBoard.checkBingo().turn && cell.textContent == '' && gameActive) {
                 cell.textContent = 'X';
                 gameBoard.arr[i] = 'X';
-                playerX.push(i);
-                gameBoard.checkBingo();
-                if (gameBoard.checkBingo() == 'O') {
-                    footer.textContent = 'O is winner';
+                gameBoard.playerX.array.push(i);
+                if (gameBoard.checkBingo().result == 'X') {
+                    playerWin.textContent = 'X is winner';
+                    gameActive = false;
                     return;
-                };
-                else if (gameBoard.checkBingo() == 'draw') {
-                    footer.textContent = 'The result is draw';
+                }
+                else if (gameBoard.checkBingo().result == 'draw') {
+                    playerWin.textContent = 'The result is draw';
+                    gameActive = false;
                     return;
-                };
+                }
             }
         });
         table.appendChild(cell);
@@ -100,4 +113,17 @@ const displayController = (() => {
             }
         })`; */
     }
+    const resetButton = document.querySelector('button')
+    resetButton.addEventListener('click', () => {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.textContent = '');
+        gameBoard.arr = Array(9);
+        gameBoard.playerO = Player([]);
+        gameBoard.playerX = Player([]);
+        gameBoard.result = ''
+        playerWin.textContent = 'Winner is ???'
+        gameBoard;
+        displayController;
+    });
+    return {playerTurn, gameActive}
 })();
